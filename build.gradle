@@ -1,0 +1,53 @@
+import org.gradle.plugins.ide.eclipse.model.AccessRule
+
+apply plugin: 'java'
+apply plugin: 'java-library'
+apply plugin: 'eclipse'
+
+eclipse {
+    classpath {
+        file {
+            whenMerged {
+                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
+                jre.accessRules.add(new AccessRule('0', 'javafx/**'))
+            }
+        }
+    }
+}
+
+repositories {
+   jcenter()
+   maven { url "https://jitpack.io" }
+}
+
+configurations.all { // uncomment the following line to check for dependency updates at every build
+  // resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+dependencies {
+	compile 'com.github.be3short:HybridSystemsEnvironment:-SNAPSHOT'
+    testImplementation 'junit:junit:4.12' 
+}
+
+jar {
+
+    archiveName = "Inverter.jar"
+
+    from {
+
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    manifest {
+        attributes 'Main-Class': 'edu.ucsc.cross.hse.model.hybridinverter.InverterTasks'
+
+    }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA, log4j.properties'
+}
